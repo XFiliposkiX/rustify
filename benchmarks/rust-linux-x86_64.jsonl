@@ -1,0 +1,2 @@
+{"experiment":"rust_pack_4096","iterations":10000,"elapsed_ns":182731389}
+{"experiment":"zlib_roundtrip_64k","iterations":100,"elapsed_ns":42920911}

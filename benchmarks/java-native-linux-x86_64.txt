@@ -1,0 +1,11 @@
+Rustify Java=0.1.0 nativeLoaded=true native=0.1.0 ABI=1 loader=test Minecraft=test enabled=[] disabled=[startup.archiveScanner, startup.cache, chunk.palette, chunk.bitStorage, compression, worldgen.experimental, memory.experimental] compatibility=no Minecraft replacements; handshake passed; game replacements disabled cache=not integrated JNI calls=192 bytesIn=548992 bytesOut=324872 boundaryWallNs=921024
+measured JNI ping 100000 calls ns=3500629
+measured packing (native=true) 10000 batches ns=112186861
+measured JNI ping 100000 calls ns=498848
+measured packing (native=true) 10000 batches ns=106248730
+measured JNI ping 100000 calls ns=2621032
+measured packing (native=true) 10000 batches ns=105851247
+measured JNI ping 100000 calls ns=776227
+measured packing (native=true) 10000 batches ns=109737256
+measured JNI ping 100000 calls ns=778471
+measured packing (native=true) 10000 batches ns=103988242

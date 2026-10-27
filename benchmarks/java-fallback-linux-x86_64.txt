@@ -1,0 +1,11 @@
+Rustify Java=0.1.0 nativeLoaded=false native=unavailable ABI=unavailable loader=test Minecraft=test enabled=[] disabled=[startup.archiveScanner, startup.cache, chunk.palette, chunk.bitStorage, compression, worldgen.experimental, memory.experimental] compatibility=no Minecraft replacements; java.io.FileNotFoundException: no packaged native for linux-x86_64 cache=not integrated JNI calls=0 bytesIn=0 bytesOut=0 boundaryWallNs=0
+JNI benchmark unavailable: java.io.FileNotFoundException: no packaged native for linux-x86_64
+measured packing (native=false) 10000 batches ns=222500977
+JNI benchmark unavailable: java.io.FileNotFoundException: no packaged native for linux-x86_64
+measured packing (native=false) 10000 batches ns=183576140
+JNI benchmark unavailable: java.io.FileNotFoundException: no packaged native for linux-x86_64
+measured packing (native=false) 10000 batches ns=161992609
+JNI benchmark unavailable: java.io.FileNotFoundException: no packaged native for linux-x86_64
+measured packing (native=false) 10000 batches ns=86440385
+JNI benchmark unavailable: java.io.FileNotFoundException: no packaged native for linux-x86_64
+measured packing (native=false) 10000 batches ns=88257776

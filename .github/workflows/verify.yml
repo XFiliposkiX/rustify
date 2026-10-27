@@ -1,0 +1,81 @@
+name: Verify Rustify
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, platform: linux-x86_64, lib: librustify_jni.so}
+          - {os: ubuntu-24.04-arm, platform: linux-aarch64, lib: librustify_jni.so}
+          - {os: windows-2022, platform: windows-x86_64, lib: rustify_jni.dll}
+          - {os: macos-15-intel, platform: macos-x86_64, lib: librustify_jni.dylib}
+          - {os: macos-15, platform: macos-aarch64, lib: librustify_jni.dylib}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - name: Rust toolchain
+        shell: bash
+        run: rustup toolchain install 1.99.1 --profile minimal --component clippy,rustfmt && rustup default 1.99.1
+      - name: Verify shared components
+        shell: bash
+        run: bash scripts/check.sh
+      - name: Verify packaged JNI on this architecture
+        shell: bash
+        run: |
+          mkdir -p java-common/build/check/natives/${{ matrix.platform }}
+          cp rust/target/release/${{ matrix.lib }} java-common/build/check/natives/${{ matrix.platform }}/
+          java -cp java-common/build/check dev.rustify.IntegrationTest native
+          mkdir -p staging/natives/${{ matrix.platform }}
+          cp rust/target/release/${{ matrix.lib }} staging/natives/${{ matrix.platform }}/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.platform }}
+          path: staging/
+  common:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - run: ./gradlew -p java-common build
+  loaders:
+    needs: native
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {loader: fabric, java: '25', gradle: '9.8.2'}
+          - {loader: neoforge, java: '21', gradle: '9.2.1'}
+          - {loader: forge, java: '17', gradle: '8.14.3'}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ matrix.gradle }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: native-*
+          merge-multiple: true
+          path: java-common/src/main/resources
+      - run: gradle -p ${{ matrix.loader }} build --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rustify-${{ matrix.loader }}
+          path: ${{ matrix.loader }}/build/libs/*.jar
+  benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo run --manifest-path rust/Cargo.toml --release --locked -p rustify-bench > rust-benchmark.jsonl
+      - uses: actions/upload-artifact@v4
+        with: {name: benchmarks, path: rust-benchmark.jsonl}
