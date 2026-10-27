@@ -9,6 +9,7 @@ rm -rf java-common/build/check
 mkdir -p java-common/build/check
 javac --release 17 -d java-common/build/check java-common/src/main/java/dev/rustify/*.java java-common/src/test/java/dev/rustify/*.java
 java -cp java-common/build/check dev.rustify.IntegrationTest
+java -cp java-common/build/check dev.rustify.ConfigFailureTest
 case "$(uname -s)-$(uname -m)" in
  Linux-x86_64) platform=linux-x86_64; lib=librustify_jni.so;;
  Linux-aarch64) platform=linux-aarch64; lib=librustify_jni.so;;

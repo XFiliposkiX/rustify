@@ -5,3 +5,5 @@ java { sourceCompatibility=JavaVersion.VERSION_17; targetCompatibility=JavaVersi
 tasks.withType(JavaCompile).configureEach { options.release=17 }
 tasks.register('integrationTest', JavaExec) { dependsOn testClasses; classpath=sourceSets.test.runtimeClasspath; mainClass='dev.rustify.IntegrationTest' }
 check.dependsOn integrationTest
+tasks.register('configFailureTest', JavaExec) { dependsOn testClasses; classpath=sourceSets.test.runtimeClasspath; mainClass='dev.rustify.ConfigFailureTest' }
+check.dependsOn configFailureTest

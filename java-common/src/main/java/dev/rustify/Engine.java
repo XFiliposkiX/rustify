@@ -24,7 +24,7 @@ public final class Engine {
             Path file = game.resolve("config/rustify.properties");
             if (Files.exists(file)) try (InputStream in = Files.newInputStream(file)) {config.load(in);}
             else {Files.createDirectories(file.getParent()); for (String f : FEATURES) config.setProperty("rustify."+f, "false"); config.setProperty("general.native", "true"); try (OutputStream out = Files.newOutputStream(file, StandardOpenOption.CREATE_NEW)) {config.store(out, "Rustify: experiments are OFF; no game behavior replaced");}}
-        } catch (IOException e) {System.err.println("Rustify config unavailable: " + e);}
+        } catch (IOException | IllegalArgumentException | SecurityException e) {System.err.println("Rustify config unavailable: " + e);}
         long start = System.nanoTime();
         if (Boolean.parseBoolean(config.getProperty("general.native", "true"))) {
             try {
@@ -35,11 +35,11 @@ public final class Engine {
                 loaded = true; reason = "handshake passed; game replacements disabled";
             } catch (LinkageError | Exception e) {loaded = false; reason = e.toString(); System.err.println("Rustify native disabled; vanilla behavior retained: " + reason);}
         } else reason = "disabled by configuration";
-        try {writeProfile(bootstrap, System.nanoTime()-start, loaderVersion);} catch(IOException e) {System.err.println("Rustify profile write failed: " + e);}
+        try {writeProfile(bootstrap, System.nanoTime()-start, loaderVersion);} catch(IOException | SecurityException e) {System.err.println("Rustify profile write failed: " + e);}
     }
     private static void loadPackaged() throws IOException {
         String os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
-        os = os.contains("win") ? "windows" : os.contains("mac") ? "macos" : os.contains("linux") ? "linux" : "unsupported";
+        os = (os.contains("mac") || os.contains("darwin")) ? "macos" : os.contains("win") ? "windows" : os.contains("linux") ? "linux" : "unsupported";
         String arch = System.getProperty("os.arch");
         arch = arch.equals("amd64") || arch.equals("x86_64") ? "x86_64" : arch.equals("aarch64") || arch.equals("arm64") ? "aarch64" : "unsupported";
         String name = os.equals("windows") ? "rustify_jni.dll" : os.equals("macos") ? "librustify_jni.dylib" : "librustify_jni.so";
@@ -47,7 +47,7 @@ public final class Engine {
             if (in == null) throw new FileNotFoundException("no packaged native for " + os + "-" + arch);
             // Private fresh directory prevents stale or attacker-controlled extraction targets.
             Path dir = Files.createTempDirectory("rustify-native-");
-            Path target = dir.resolve(name); Files.copy(in, target); target.toFile().deleteOnExit(); dir.toFile().deleteOnExit();
+            Path target = dir.resolve(name); Files.copy(in, target); dir.toFile().deleteOnExit(); target.toFile().deleteOnExit();
             System.load(target.toAbsolutePath().toString());
         }
     }
@@ -64,7 +64,7 @@ public final class Engine {
         catch (LinkageError | RuntimeException e) {loaded=false;reason=e.toString();System.err.println("Rustify feature disabled: "+reason);return referencePack(values,bits);}
         finally {TIME.addAndGet(System.nanoTime()-start);}
     }
-    public static String status() {return "Rustify Java="+VERSION+" nativeLoaded="+loaded+" native="+nativeVersion+" ABI="+(loaded?1:"unavailable")+" loader="+loader+" Minecraft="+minecraft+" enabled=[] disabled="+Arrays.toString(FEATURES)+" compatibility=no Minecraft replacements; "+reason+" cache=not integrated JNI calls="+CALLS+" bytesIn="+IN+" bytesOut="+OUT+" boundaryWallNs="+TIME;}
+    public static String status() {return "Rustify Java="+VERSION+" nativeLoaded="+loaded+" native="+nativeVersion+" ABI="+(loaded?1:"unavailable")+" loader="+loader+" Minecraft="+minecraft+" platform="+System.getProperty("os.name")+" arch="+System.getProperty("os.arch")+" capabilities="+Capabilities.snapshot(config == null ? new Properties() : config,loaded)+" compatibility=no Minecraft replacements; "+reason+" cache=not integrated JNI calls="+CALLS+" bytesIn="+IN+" bytesOut="+OUT+" boundaryWallNs="+TIME;}
     public static String benchmark(String kind) {
         if(kind.equals("jni")) {if(!loaded)return "JNI benchmark unavailable: "+reason;long start=System.nanoTime();for(int i=0;i<100000;i++){if(NativeBridge.ping(i)!=i)throw new AssertionError("JNI mismatch");}CALLS.addAndGet(100000);return "measured JNI ping 100000 calls ns="+(System.nanoTime()-start);}
         if(kind.equals("chunks")) {int[] values=new int[4096];for(int i=0;i<values.length;i++) values[i]=i%32;long[] expected=referencePack(values,5);long start=System.nanoTime();for(int i=0;i<10000;i++)if(!Arrays.equals(expected,experimentalPack(values,5)))throw new AssertionError("packing mismatch");return "measured packing (native="+loaded+") 10000 batches ns="+(System.nanoTime()-start);}
