@@ -7,3 +7,5 @@ No Minecraft behavior, archive security checks, world storage, chunk pipeline, c
 Commands are scaffolded equivalently on the three adapters: `/rustify status`, `/rustify benchmark`, and `jni`, `compression`, `chunks` subcommands. Benchmarks require permission level 2 and run synchronously; do not run them on a production server. Compression command explicitly reports the missing Java/JNI comparison. Command APIs remain uncompiled because dependency resolution was blocked.
 
 World generation, serialization replacement, native direct-buffer ownership and bytecode/Mixin transformation acceleration are deferred. No seed behavior is changed.
+
+Continuation verification: Fabric 26.3, NeoForge 21.11.48 / Minecraft 1.21.11, and Forge 47.4.28 / Minecraft 1.20.1 now compile. Fabric bootstrap verifies JNI and configuration-disabled fallback, but does not reach world readiness. NeoForge/Forge native-in-game initialization and all cross-mod interactions remain unverified. See STATUS.md for launch gates; earlier command-source compilation limitations are superseded by actual successful builds.

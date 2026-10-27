@@ -23,3 +23,11 @@ NeoForge official MDK wrapper specifies Gradle 9.2.1; CI uses that version. Loca
 ## Continuation: stable Fabric metadata
 
 Official Fabric metadata now responds: Minecraft 26.3 is stable, Loader 0.20.1 stable and API 0.165.0+26.3 exists. Loom is pinned to stable 1.19.3 instead of the snapshot. Actual resolution confirmed Loom requires Java 25; a checksummed official Temurin 25+36 JDK is used locally. Gradle 9.8.2 successfully configures Loom. Host Java trust is selected through `/etc/ssl/certs/java/cacerts` to preserve proxy CA trust; verification is never disabled. Alternatives were remaining on snapshot tooling or choosing an older Minecraft release; both rejected. Versions remain changeable after compatibility validation.
+
+## Continuation: verified loaders and launch gates
+
+All three adapter builds now pass. Forge requires an actual JDK 17; NeoForge and Fabric require the new permission-check API, verified independently against generated sources. Local native resources are added as a generated build resource directory; CI's existing trusted multi-platform resource staging remains intact. This avoids committing binaries. Alternative system-wide library lookup was rejected.
+
+The optional Forge server invocation excludes only client asset download because a dedicated server does not consume client textures. NeoForge validates an asset-properties input and cannot use that shortcut: the failed alternative is documented rather than fabricating input. Client launches remain blocked by resources.download.minecraft.net. EULA was not auto-accepted; bootstrapping to its gate is not full launch verification. These choices can be revisited after network and legal prerequisites are supplied.
+
+Git history and new milestones are pushed on the existing development branch. Remote CI result lookup is denied by api.github.com; no CI success is inferred from push success.

@@ -1,37 +1,44 @@
-# Rustify status
+# Verified status
 
-This is a tested shared foundation, **not a release-ready Minecraft mod**. Work is on `dev/rustify-foundation`. No game optimization is enabled by default; no startup/FPS advantage is claimed.
+Development branch: `dev/rustify-foundation`. Changes are pushed to the connected GitHub repository. This is a tested foundation, not a finished performance mod. No Minecraft algorithms are replaced by default.
 
-| Component | Fabric | NeoForge 1.21.11 | Forge 1.20.1 |
+| Component | Fabric 26.3 | NeoForge 1.21.11 | Forge 1.20.1 |
 |---|---|---|---|
-| Builds | BLOCKED at plugin resolution | BLOCKED at plugin resolution | BLOCKED at plugin resolution |
-| Launch tested | NO | NO | NO |
-| Native JNI | Shared Linux x86_64 integration passes; adapter unverified | Same | Same |
-| Startup profiler | Shared bootstrap/native timing tested; loader hooks unverified | Same | Same |
-| Cache | Standalone Rust implementation tested; not integrated | Same | Same |
-| Archive scanner | Parallel CLI tested; not integrated | Same | Same |
-| Chunk acceleration | Java/Rust packing equivalence tested; game replacement OFF | Same | Same |
-| Compression | Rust zlib roundtrip tested; game replacement OFF | Same | Same |
-| Benchmarked | Shared JNI/packing and Rust compression only; game unavailable | Same | Same |
-| Known issues | Latest stable target/Loom not confirmed; provisional 26.3 template | No compiled/launch proof | Requested 47.4.28 not resolved |
+| Builds | COMPILES; full build passed | COMPILES; JAR produced | COMPILES; full build passed |
+| Launch tested | PARTIAL: server bootstrap, stops at EULA | NOT VERIFIED: assets blocked | PARTIAL: server launcher stops at EULA |
+| Functionally tested | NO: commands/world not exercised | NO | NO |
+| Native JNI | TESTED inside Fabric bootstrap | Shared JVM test only | Shared JVM test only |
+| Fallback verified | TESTED with native disabled in config | Shared JVM test only | Shared JVM test only |
+| Startup profiler | Bootstrap/native phases recorded | Shared implementation; not observed in game | Shared implementation; not observed in game |
+| Cache | Rust CLI/tests; loader integration unfinished | Same | Same |
+| Archive scanner | Parallel Rust CLI tested; not loader replacement | Same | Same |
+| Chunk acceleration | Exact Java/Rust packing comparisons; game replacement OFF | Same | Same |
+| Compression | Bounded Rust zlib tests; game replacement OFF | Same | Same |
+| Worldgen experiments | NOT IMPLEMENTED | NOT IMPLEMENTED | NOT IMPLEMENTED |
+| Benchmarked | Shared microbenchmarks; one native/one fallback bootstrap sample | Shared microbenchmarks only | Shared microbenchmarks only |
+| Known issues | Client assets denied; EULA gate; no world/command validation | Assets denied; no launch/native-in-game proof | Standard runServer downloads client assets; EULA gate |
 
-## Verified locally
+## Evidence
 
-- `cargo fmt --all --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test --locked`: pass. Eight Rust tests cover packing widths/lengths/invalid input, bounded zlib, valid/invalid ZIP metadata, missing files, content invalidation and corrupt cache rebuilding.
-- Rust JNI release library builds on Linux x86_64. Java 17-compatible common code compiles and Gradle `build` succeeds using JDK 21 / Gradle 8.14.3.
-- Actual JVM/native ABI handshake, version retrieval, self-test, 192 deterministic Java/native comparisons and invalid native arguments pass. Missing packaged library falls back without failing initialization. Repeatable check script removes its own generated test classes before testing fallback.
-- Parallel scanner inspected the common JAR: first run had zero content matches, second run one match; archive security/loader checks are never bypassed. Fingerprints are recomputed on every scan.
-- Five local iterations each of JNI ping and batch packing are recorded. Rust-only packing and zlib roundtrip measured. No statistically controlled end-to-end advantage demonstrated.
-- Gradle archive SHA-256 and downloaded Temurin JDK SHA-256 were verified against their official release checksums.
+- Official metadata confirms stable Fabric Minecraft 26.3, Loader 0.20.1, API 0.165.0+26.3. Stable Loom 1.19.3 uses Java 25 and Gradle 9.8.2. Actual compilation required `implementation` and the current `Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)` API.
+- NeoForge 21.11.48 targets exactly 1.21.11. ModDevGradle 2.0.148 resolved and compiled using Java 21 / Gradle 8.14.3. The official template uses Gradle 9.2.1 (CI configuration). Permission API was independently checked in its generated Minecraft sources and fixed.
+- Forge 1.20.1-47.4.28 compiled and reobfuscated with Java 17 / Gradle 8.14.3. No target substitution.
+- All three generated JARs were inspected and contain this project's Linux x86_64 JNI library. Other platforms are configured in CI but not locally verified.
+- Rust formatting, Clippy with warnings denied, eight Rust tests, native release build, 192 Java/native packing comparisons, invalid JNI arguments and standalone missing-library fallback pass on Linux x86_64. Java-common Gradle build passed previously; shared source was preserved.
+- Actual Fabric server bootstrap discovers Rustify, records nativeLoaded=true, ABI 1, native version 0.1.0 and successful self-test. A second invocation with general.native=false records nativeLoaded=false and continues to the EULA gate. Artifacts are in benchmarks/fabric/. Neither invocation reaches world readiness or verifies commands.
+- Forge server bootstrap with `runServer -x downloadAssets` reaches its EULA gate. Exclusion avoids client textures that a dedicated server does not use; native initialization did not occur before this gate. Standard runServer fails downloading client assets.
+- Fabric client launch was attempted and fails at asset downloads before the client process starts. NeoForge server launch likewise requests blocked assets; excluding downloadAssets fails its required-input validation, so that route is not supported or claimed successful.
 
-## Blockers and remaining work
+## External limitations
 
-The environment proxy denied `meta.fabricmc.net`, `maven.fabricmc.net`, `maven.neoforged.net` and `maven.minecraftforge.net` with HTTP 403. All adapter builds were actually attempted and failed at plugin resolution, before source compilation. Required domains are saved in the environment draft; saving does not apply them. Review/save environment settings and publish to activate the updated configuration, then retry version metadata and loader builds. TLS and checksum verification remain enabled.
+`resources.download.minecraft.net` responds CONNECT 403. Its domain is added to the saved environment draft; saving does not apply or publish policy. Activate the saved network configuration before retrying clients and standard loader run tasks. Maven access now works with proxy settings and host Java CA trust; the previous blanket Maven blocker is resolved.
 
-Fabric versions derive from the current official example master, which uses snapshot Loom. This does not satisfy the requested latest **stable** selection yet. Resolve stable metadata after networking is available; do not publish the provisional adapter. NeoForge CI follows its official Gradle 9.2.1 wrapper; Fabric CI follows official Gradle 9.8.2 wrapper. These CI versions have not run locally. Forge uses the requested exact Minecraft and Forge versions. Java 17 for Forge and Java 25 for Fabric must be available to those builds.
+Servers require user acceptance of Minecraft's EULA. No EULA acceptance or world-ready launch is claimed. After accepting terms locally, rerun isolated development servers and test `/rustify status` and benchmark commands; stop cleanly. Never use experimental synchronous benchmarks on production servers.
 
-CI definitions cover five native platforms, common Java, separate loader builds and benchmark artifacts. Only Linux x86_64 was actually exercised. CI has not been executed on GitHub. It builds native resources before bundling them into loader JARs; local loader builds currently omit natives unless the developer stages trusted project-built native resources in `java-common/src/main/resources/natives/`.
+Git push works. GitHub Actions configuration is pushed and eligible for push triggers. Both gh and HTTPS access to api.github.com return 403, so remote job outcomes are UNAVAILABLE, not green. No release publication was performed.
 
-Unfinished: full observable startup lifecycle hooks, real feature enablement/conflict registry, loader-integrated batch scanner/cache/resource index, Java/native compression comparison and memory measurement, palette compaction, serialization, direct buffers, worldgen and Mixin metadata experiments. Native execution-only timing and complete handshake-call byte/call accounting are unavailable. Commands exist in adapter source but are not compiled or functionally tested. No development Minecraft server/client was launched. Existing benchmark commands execute synchronously and are development-only.
+## Remaining engineering
 
-Next sequence: activate network settings; verify/pin stable Fabric dependencies and compatible JDK/Gradle; compile each adapter and repair actual API differences; launch isolated dev servers; verify commands/profile paths/native fallback; then measure candidate optimizations against real baselines. Keep all world-affecting paths off until correctness and compatibility tests pass.
+Full feature capability/conflict registry, lifecycle timing beyond bootstrap, loader-integrated scanner/cache/resource index, batch scanner JNI, native execution-only accounting, comparative compression/memory benchmarks, palette compaction, serialization, native handles, worldgen and Mixin experiments remain unfinished. No measured end-to-end performance win justifies enabling game replacements. Do not promote experimental paths based on source presence or compile success.
+
+Reproduce: scripts/check.sh; scripts/build-loader.sh fabric; scripts/build-loader.sh neoforge; scripts/build-loader.sh forge. Helpers select prepared target JDKs/Gradle and preserve TLS validation. For manual launches use the corresponding helper with runServer/runClient. See DECISIONS.md and BENCHMARKS.md for provenance and limitations.
