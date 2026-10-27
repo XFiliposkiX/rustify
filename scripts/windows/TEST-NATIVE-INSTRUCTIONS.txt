@@ -1,0 +1,29 @@
+RUSTIFY FABRIC WINDOWS 11 NATIVE TEST
+
+This package contains a development Windows x86_64 Rust JNI library. It has been
+cross-compiled and structurally inspected, but it is not runtime-verified until
+this test succeeds on Windows.
+
+Required instance:
+  Minecraft 26.3
+  Fabric Loader 0.20.1
+  Fabric API 0.165.0+26.3
+  Java 25
+
+1. Replace the earlier Rustify diagnostic JAR with
+   rustify-fabric-0.1.0-dev-windows-native-test.jar.
+2. Launch only to the main menu and wait 10 seconds.
+3. Close Minecraft normally.
+4. Run collect-rustify-debug.bat for this instance and send the resulting ZIP.
+
+Expected latest.txt fields:
+  nativeLoaded=true
+  native=0.1.0
+  JavaABIExpected=1
+  RustABIProvided=1
+  ABIStatus=compatible
+  handshake passed
+
+If the DLL cannot load or its self-test fails, Rustify must disable acceleration
+and Minecraft must still reach the menu. Do not create or use an important world
+with this development build.

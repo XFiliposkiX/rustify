@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /** One shared compatibility layer. No loader or Minecraft classes enter this module. */
 public final class Engine {
     public static final String VERSION = "0.1.0";
+    public static final int EXPECTED_NATIVE_ABI = 1;
     private static final String[] FEATURES = {"startup.archiveScanner", "startup.cache", "chunk.palette", "chunk.bitStorage", "compression", "worldgen.experimental", "memory.experimental"};
     private static final AtomicLong CALLS = new AtomicLong(), IN = new AtomicLong(), OUT = new AtomicLong(), TIME = new AtomicLong();
     private static volatile boolean loaded;
@@ -29,7 +30,11 @@ public final class Engine {
         if (Boolean.parseBoolean(config.getProperty("general.native", "true"))) {
             try {
                 loadPackaged();
-                if (NativeBridge.abi() != 1) throw new LinkageError("native ABI mismatch");
+                int providedAbi = NativeBridge.abi();
+                if (providedAbi != EXPECTED_NATIVE_ABI) {
+                    throw new LinkageError("native ABI mismatch: Java expected="
+                            + EXPECTED_NATIVE_ABI + " Rust provided=" + providedAbi);
+                }
                 nativeVersion = Objects.requireNonNull(NativeBridge.version());
                 if (NativeBridge.selfTest() != 1) throw new LinkageError("native self-test failed");
                 loaded = true; reason = "handshake passed; game replacements disabled";
@@ -64,7 +69,7 @@ public final class Engine {
         catch (LinkageError | RuntimeException e) {loaded=false;reason=e.toString();System.err.println("Rustify feature disabled: "+reason);return referencePack(values,bits);}
         finally {TIME.addAndGet(System.nanoTime()-start);}
     }
-    public static String status() {return "Rustify Java="+VERSION+" nativeLoaded="+loaded+" native="+nativeVersion+" ABI="+(loaded?1:"unavailable")+" loader="+loader+" Minecraft="+minecraft+" platform="+System.getProperty("os.name")+" arch="+System.getProperty("os.arch")+" capabilities="+Capabilities.snapshot(config == null ? new Properties() : config,loaded)+" compatibility=no Minecraft replacements; "+reason+" cache=not integrated JNI calls="+CALLS+" bytesIn="+IN+" bytesOut="+OUT+" boundaryWallNs="+TIME;}
+    public static String status() {return "Rustify Java="+VERSION+" nativeLoaded="+loaded+" native="+nativeVersion+" JavaABIExpected="+EXPECTED_NATIVE_ABI+" RustABIProvided="+(loaded?EXPECTED_NATIVE_ABI:"unavailable")+" ABIStatus="+(loaded?"compatible":"unavailable")+" loader="+loader+" Minecraft="+minecraft+" platform="+System.getProperty("os.name")+" arch="+System.getProperty("os.arch")+" capabilities="+Capabilities.snapshot(config == null ? new Properties() : config,loaded)+" compatibility=no Minecraft replacements; "+reason+" cache=not integrated JNI calls="+CALLS+" bytesIn="+IN+" bytesOut="+OUT+" boundaryWallNs="+TIME;}
     public static String benchmark(String kind) {
         if(kind.equals("startup")) {if(game==null)return "Startup profiling unavailable: not initialized";try{return Files.readString(game.resolve("rustify/benchmarks/latest.json"));}catch(IOException | SecurityException e){return "Startup profile unavailable: "+e.getClass().getSimpleName();}}
         if(kind.equals("jni")) {if(!loaded)return "JNI benchmark unavailable: "+reason;long start=System.nanoTime();for(int i=0;i<100000;i++){if(NativeBridge.ping(i)!=i)throw new AssertionError("JNI mismatch");}CALLS.addAndGet(100000);return "measured JNI ping 100000 calls ns="+(System.nanoTime()-start);}

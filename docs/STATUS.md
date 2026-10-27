@@ -58,3 +58,18 @@ Minecraft log, newest crash report, Rustify config/profile, and non-secret syste
 metadata. It intentionally contains no Windows native library until that target is
 built and runtime-tested. Its purpose is to verify safe fallback and collect the
 evidence needed for Windows native work; it is not a performance release.
+
+The fallback kit was exercised on Windows 11 amd64 with Minecraft 26.3,
+Fabric Loader 0.20.1, Java 25.0.1, and an NVIDIA RTX 3060. Rustify was
+discovered, reported the missing Windows library, initialized resources, reached
+the main menu, and closed normally. The measured Rustify bootstrap was 10.50 ms;
+native detection/fallback was 0.72 ms. These are single diagnostic measurements,
+not performance comparisons.
+
+A Windows x86_64 UCRT DLL is now cross-built using Rust's official
+`x86_64-pc-windows-gnullvm` target and llvm-mingw 20261020. Its PE format, imports,
+and all five JNI exports were inspected; SHA-256 is
+`2ddc24f0e2e933501a65281ec288b8c84eadd7e9b307e4538fff2ca3e3df0f5d`.
+It is packaged in `build/rustify-fabric-0.1.0-dev-windows-native-test.zip`.
+Runtime JNI compatibility remains unverified until the Windows menu test reports
+`nativeLoaded=true`, matching ABI 1, and a passed self-test.

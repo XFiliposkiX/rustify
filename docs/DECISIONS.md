@@ -35,3 +35,15 @@ Git history and new milestones are pushed on the existing development branch. Re
 ## Readiness and candidate packaging
 
 Development candidates are collected only after checking that each JAR includes the common Engine and at least one native resource. Hashes and source revision accompany them. They are not named or advertised as production releases: neither world-ready launches nor game performance benefits are proven. Capability states distinguish config-disabled from requested-but-unsupported functions; no preference setting can accidentally enable an unimplemented game hook. This can be extended when real measured integrations exist.
+
+## Windows native test build
+
+GitHub Actions artifacts could not be read because the repository API returned
+Forbidden. The replacement build uses Rust's official Windows gnullvm standard
+library and the upstream llvm-mingw 20261020 UCRT toolchain downloaded from its
+GitHub release. The downloaded toolchain archive SHA-256 was recorded locally as
+`55064b60b991a1e1e8090b8c2f84e82b22cfe5903d12c159d65064cf5e8ae335`.
+Unwind support is statically linked to avoid shipping an undeclared `libunwind.dll`.
+The DLL still requires an actual Windows JVM test; structural inspection cannot
+prove loading, ABI compatibility, or behavior. The reproducible build entry point
+is `scripts/build-windows-native.sh` with a trusted `LLVM_MINGW_ROOT`.
