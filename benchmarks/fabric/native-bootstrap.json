@@ -1,0 +1,1 @@
+{"timestamp":"2026-10-27T08:17:17.359925115Z","loader":"fabric","loaderVersion":"0.20.1","minecraft":"26.3","java":"25","os":"Linux amd64","processors":4,"bootstrapNs":62201021,"nativeLoadingNs":8104980,"unobserved":["loader initialization","mod discovery","mod metadata discovery","mixin preparation","resource indexing","registries","resource reload","client initialization"]}
