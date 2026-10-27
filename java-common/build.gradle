@@ -1,0 +1,7 @@
+plugins { id 'java-library' }
+group='dev.rustify'
+version='0.1.0'
+java { sourceCompatibility=JavaVersion.VERSION_17; targetCompatibility=JavaVersion.VERSION_17 }
+tasks.withType(JavaCompile).configureEach { options.release=17 }
+tasks.register('integrationTest', JavaExec) { dependsOn testClasses; classpath=sourceSets.test.runtimeClasspath; mainClass='dev.rustify.IntegrationTest' }
+check.dependsOn integrationTest

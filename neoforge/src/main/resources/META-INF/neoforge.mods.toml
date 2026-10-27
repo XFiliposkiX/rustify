@@ -1,0 +1,14 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="MIT"
+[[mods]]
+modId="rustify"
+version="0.1.0"
+displayName="Rustify"
+description="Shared native performance experiments; safe defaults."
+[[dependencies.rustify]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.11]"
+ordering="NONE"
+side="BOTH"

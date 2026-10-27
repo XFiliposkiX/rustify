@@ -1,0 +1,1 @@
+{"schemaVersion":1,"id":"rustify","version":"0.1.0","name":"Rustify","environment":"*","entrypoints":{"main":["dev.rustify.fabric.RustifyFabric"]},"depends":{"fabricloader":">=0.20.1","minecraft":"26.3","java":">=25","fabric-api":"*"}}
