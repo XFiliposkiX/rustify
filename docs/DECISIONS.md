@@ -31,3 +31,7 @@ All three adapter builds now pass. Forge requires an actual JDK 17; NeoForge and
 The optional Forge server invocation excludes only client asset download because a dedicated server does not consume client textures. NeoForge validates an asset-properties input and cannot use that shortcut: the failed alternative is documented rather than fabricating input. Client launches remain blocked by resources.download.minecraft.net. EULA was not auto-accepted; bootstrapping to its gate is not full launch verification. These choices can be revisited after network and legal prerequisites are supplied.
 
 Git history and new milestones are pushed on the existing development branch. Remote CI result lookup is denied by api.github.com; no CI success is inferred from push success.
+
+## Readiness and candidate packaging
+
+Development candidates are collected only after checking that each JAR includes the common Engine and at least one native resource. Hashes and source revision accompany them. They are not named or advertised as production releases: neither world-ready launches nor game performance benefits are proven. Capability states distinguish config-disabled from requested-but-unsupported functions; no preference setting can accidentally enable an unimplemented game hook. This can be extended when real measured integrations exist.
