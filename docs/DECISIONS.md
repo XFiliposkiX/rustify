@@ -19,3 +19,7 @@ Official templates were fetched through raw.githubusercontent.com on 2026-10-27.
 No user technical decisions were required. No new worktree, remote writes, or downloaded third-party native engine binaries were used.
 
 NeoForge official MDK wrapper specifies Gradle 9.2.1; CI uses that version. Local plugin-resolution attempts used 8.14.3 and do not establish compatibility with its required plugin.
+
+## Continuation: stable Fabric metadata
+
+Official Fabric metadata now responds: Minecraft 26.3 is stable, Loader 0.20.1 stable and API 0.165.0+26.3 exists. Loom is pinned to stable 1.19.3 instead of the snapshot. Actual resolution confirmed Loom requires Java 25; a checksummed official Temurin 25+36 JDK is used locally. Gradle 9.8.2 successfully configures Loom. Host Java trust is selected through `/etc/ssl/certs/java/cacerts` to preserve proxy CA trust; verification is never disabled. Alternatives were remaining on snapshot tooling or choosing an older Minecraft release; both rejected. Versions remain changeable after compatibility validation.

@@ -1,0 +1,35 @@
+{
+  "methodology": "Separate JVMs; cold samples included; no speedup conclusion",
+  "reports": [
+    {
+      "source": "java-fallback-linux-x86_64.txt",
+      "experiment": "packing (native=false) 10000 batches",
+      "result_type": "measured",
+      "samples": 5,
+      "median_ns": 161992609,
+      "min_ns": 86440385,
+      "max_ns": 222500977,
+      "population_stdev_ns": 53607905.58417006
+    },
+    {
+      "source": "java-native-linux-x86_64.txt",
+      "experiment": "JNI ping 100000 calls",
+      "result_type": "measured",
+      "samples": 5,
+      "median_ns": 778471,
+      "min_ns": 498848,
+      "max_ns": 3500629,
+      "population_stdev_ns": 1201233.118305452
+    },
+    {
+      "source": "java-native-linux-x86_64.txt",
+      "experiment": "packing (native=true) 10000 batches",
+      "result_type": "measured",
+      "samples": 5,
+      "median_ns": 106248730,
+      "min_ns": 103988242,
+      "max_ns": 112186861,
+      "population_stdev_ns": 2950796.1680180756
+    }
+  ]
+}
