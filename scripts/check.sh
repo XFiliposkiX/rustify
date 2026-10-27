@@ -5,6 +5,7 @@ cargo fmt --manifest-path rust/Cargo.toml --all --check
 cargo clippy --manifest-path rust/Cargo.toml --all-targets -- -D warnings
 cargo test --manifest-path rust/Cargo.toml --locked
 cargo build --manifest-path rust/Cargo.toml --release -p rustify-jni
+rm -rf java-common/build/check
 mkdir -p java-common/build/check
 javac --release 17 -d java-common/build/check java-common/src/main/java/dev/rustify/*.java java-common/src/test/java/dev/rustify/*.java
 java -cp java-common/build/check dev.rustify.IntegrationTest

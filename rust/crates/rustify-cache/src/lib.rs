@@ -88,3 +88,44 @@ mod tests {
         assert!(fingerprint(Path::new("/missing-rustify")).is_err());
     }
 }
+
+#[cfg(test)]
+mod persistence_tests {
+    use super::*;
+    #[test]
+    fn invalidation_and_corruption() {
+        let dir = std::env::temp_dir().join(format!(
+            "rustify-cache-test-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir(&dir).unwrap();
+        let file = dir.join("data.jar");
+        std::fs::write(&file, b"abc").unwrap();
+        let entry = fingerprint(&file).unwrap();
+        assert!(valid(&entry));
+        std::fs::write(&file, b"xyz").unwrap();
+        assert!(!valid(&entry));
+        let context = Context {
+            minecraft: "test".into(),
+            loader: "test".into(),
+            loader_version: "test".into(),
+        };
+        let path = dir.join("index.json");
+        let index = Index {
+            version: 1,
+            context,
+            entries: vec![entry],
+        };
+        save(&path, &index).unwrap();
+        assert!(load(&path, &index.context).is_some());
+        std::fs::write(&path, b"bad").unwrap();
+        assert!(load(&path, &index.context).is_none());
+        save(&path, &index).unwrap();
+        assert!(load(&path, &index.context).is_some());
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+}

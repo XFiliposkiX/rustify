@@ -50,3 +50,25 @@ mod tests {
         }
     }
 }
+
+#[cfg(test)]
+mod valid_tests {
+    use super::*;
+    use std::io::{Cursor, Write};
+    #[test]
+    fn valid_zip() {
+        let mut writer = zip::ZipWriter::new(Cursor::new(Vec::new()));
+        writer
+            .start_file(
+                "assets/test/a.txt",
+                zip::write::SimpleFileOptions::default(),
+            )
+            .unwrap();
+        writer.write_all(b"hello").unwrap();
+        let archive = writer.finish().unwrap();
+        let rows = metadata(archive).unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].0, "assets/test/a.txt");
+        assert_eq!(rows[0].1, 5);
+    }
+}
