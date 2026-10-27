@@ -1,0 +1,8 @@
+[package]
+name = "rustify-bench"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+[dependencies]
+rustify-chunk = { path = "../rustify-chunk" }
+rustify-compression = { path = "../rustify-compression" }

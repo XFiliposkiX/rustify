@@ -1,0 +1,10 @@
+[package]
+name = "rustify-jni"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+[lib]
+crate-type = ["cdylib", "rlib"]
+[dependencies]
+jni = "0.21"
+rustify-chunk = { path = "../rustify-chunk" }
