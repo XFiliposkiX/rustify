@@ -50,3 +50,11 @@ All three targets were rebuilt successfully after resilience/diagnostic changes.
 Client asset access recovered during retry. Fabric actually started the client and discovered Rustify, then crashed in Minecraft SDL initialization with `Unable to initialize SDL: No available video device`. This machine has no available renderer. The earlier asset-policy failure is no longer the final Fabric client blocker. A graphical menu, world and rendering remain unverified. Server EULA remains unaccepted and full world-ready launches remain unverified.
 
 `scripts/build-loader.sh` now stages this workspace's locally built native library automatically. `scripts/package-artifacts.py` verifies shared Engine and packaged native entries, collects all three development candidate JARs under `build/candidates/`, and writes SHA-256 hashes and source revision to manifest.json. These are development candidates, not validated production releases. Other native platforms and CI outcomes remain unverified. No performance replacement is enabled by default.
+
+A Windows 11 Fabric fallback diagnostic kit can be generated at
+`build/rustify-fabric-0.1.0-dev-windows-diagnostics.zip`. It includes a verified
+Fabric JAR, test instructions, hashes, and a PowerShell collector for the latest
+Minecraft log, newest crash report, Rustify config/profile, and non-secret system
+metadata. It intentionally contains no Windows native library until that target is
+built and runtime-tested. Its purpose is to verify safe fallback and collect the
+evidence needed for Windows native work; it is not a performance release.

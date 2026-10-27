@@ -1,0 +1,31 @@
+RUSTIFY FABRIC WINDOWS 11 DIAGNOSTIC TEST
+
+This is a development diagnostic build. It is not a finished performance release.
+The included JAR does not contain a verified Windows native library. Rustify should
+disable native acceleration safely and record the exact reason.
+
+Required game setup:
+  Minecraft: 26.3
+  Fabric Loader: 0.20.1
+  Fabric API: 0.165.0+26.3
+  Java: 25
+
+1. Make a separate test instance in your launcher.
+2. Install the required Fabric Loader and Fabric API versions.
+3. Put rustify-fabric-0.1.0-dev-diagnostics.jar in that instance's mods folder.
+4. Start the game once and wait for the main menu. If it crashes, do not retry.
+5. Close Minecraft normally.
+6. Run collect-rustify-debug.bat.
+   - Default launcher: double-click it.
+   - Custom launcher: drag the instance folder onto the BAT file.
+7. A rustify-debug-*.zip file appears on your Desktop. Send that ZIP back.
+
+The collector includes latest.log, the newest crash report if present, Rustify's
+config and benchmark reports, and basic Java/Windows metadata. It does not collect
+Microsoft/Minecraft account tokens, launcher account databases, worlds, screenshots,
+chat histories, or other mods.
+
+Expected diagnostic result:
+  Minecraft continues running even though Windows native acceleration is unavailable.
+  rustify/benchmarks/latest.txt reports nativeLoaded=false and the missing Windows
+  native resource. This verifies fallback only; it is not a performance test.
